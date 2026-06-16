@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CyberShield — Advanced Password Security Analyzer</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <svg class="shield-icon" viewBox="0 0 80 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="sg" x1="0" y1="0" x2="80" y2="88" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#00ffe0"/>
+        <stop offset="100%" stop-color="#007a6a"/>
+      </linearGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="2.5" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <path d="M40 4L8 16V40C8 58.5 22.4 75.4 40 80C57.6 75.4 72 58.5 72 40V16L40 4Z"
+          fill="rgba(0,229,200,0.1)" stroke="url(#sg)" stroke-width="2.5" filter="url(#glow)"/>
+    <path d="M40 20L20 28V42C20 52.8 28.9 62.4 40 65.6C51.1 62.4 60 52.8 60 42V28L40 20Z"
+          fill="rgba(0,229,200,0.12)" stroke="url(#sg)" stroke-width="1.5"/>
+    <circle cx="40" cy="39" r="7" fill="none" stroke="#00e5c8" stroke-width="2.5"/>
+    <path d="M40 35V39L43 42" stroke="#00e5c8" stroke-width="2" stroke-linecap="round"/>
+    <rect x="37" y="46" width="6" height="8" rx="1.5" fill="#00e5c8" opacity=".7"/>
+  </svg>
+  <div class="header-text">
+    <h1>CyberShield</h1>
+    <p>Advanced Password Security Analyzer</p>
+  </div>
+</header>
+
+<!-- MAIN GRID -->
+<div class="grid">
+
+  <!-- ── LEFT COLUMN ── -->
+  <div class="left-col">
+
+    <!-- INPUT PANEL -->
+    <div class="panel pulsing" id="mainPanel">
+      <div class="panel-label">Password Input</div>
+      <div class="input-wrap">
+        <input class="pw-input" id="pwInput" type="password"
+               placeholder="Enter password to analyze…"
+               autocomplete="off" spellcheck="false" maxlength="128"/>
+        <button class="toggle-vis" id="toggleVis" title="Toggle visibility" type="button">👁</button>
+        <span class="score-badge" id="scoreBadge">— / 100</span>
+      </div>
+      <div class="strength-bar-wrap">
+        <div class="strength-bar-fill" id="strengthBar"></div>
+      </div>
+      <div class="strength-label-row">
+        <span class="strength-label" id="strengthLabel">AWAITING INPUT</span>
+        <span class="strength-desc"  id="strengthDesc">type a password above</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn-analyze" id="btnAnalyze" type="button">
+          <span class="btn-icon">⬡</span> Analyze Password
+        </button>
+        <button class="btn-generate" id="btnGenerate" type="button">⚡ Generate Strong</button>
+      </div>
+      <!-- Loading indicator -->
+      <div class="loading" id="loading">
+        <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+        <span style="margin-left:8px;font-size:.8rem;color:var(--text-dim)">Analyzing…</span>
+      </div>
+    </div>
+
+    <!-- BOTTOM TWO PANELS -->
+    <div class="bottom-row">
+
+      <!-- THREAT ASSESSMENT -->
+      <div class="panel">
+        <div class="panel-label">Threat Assessment</div>
+
+        <div class="threat-item">
+          <div class="threat-icon">🔬</div>
+          <div class="threat-content">
+            <div class="threat-key">Entropy</div>
+            <div class="threat-val" id="tEntropy">—</div>
+            <div class="entropy-bar-wrap">
+              <div class="entropy-bar-fill" id="entropyBar" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="threat-item">
+          <div class="threat-icon">⏱</div>
+          <div class="threat-content">
+            <div class="threat-key">Est. Crack Time</div>
+            <div class="threat-val" id="tCrack">—</div>
+          </div>
+        </div>
+
+        <div class="threat-item">
+          <div class="threat-icon">📖</div>
+          <div class="threat-content">
+            <div class="threat-key">Dictionary Risk</div>
+            <div class="threat-val" id="tDict">—</div>
+          </div>
+        </div>
+
+        <div class="threat-item">
+          <div class="threat-icon">🔄</div>
+          <div class="threat-content">
+            <div class="threat-key">Repeated Patterns</div>
+            <div class="threat-val" id="tRepeat">—</div>
+          </div>
+        </div>
+
+        <div class="threat-item">
+          <div class="threat-icon">⌨</div>
+          <div class="threat-content">
+            <div class="threat-key">Keyboard Walk</div>
+            <div class="threat-val" id="tKeyboard">—</div>
+          </div>
+        </div>
+
+        <div class="threat-item">
+          <div class="threat-icon">📈</div>
+          <div class="threat-content">
+            <div class="threat-key">Sequential Chars</div>
+            <div class="threat-val" id="tSeq">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECURITY RULES -->
+      <div class="panel">
+        <div class="panel-label">Security Rules</div>
+        <div id="rulesList">
+          <div class="rule-item" id="r-min_length">   <span class="rule-check">✓</span>Min 8 Characters</div>
+          <div class="rule-item" id="r-max_length">   <span class="rule-check">✓</span>Max 128 Characters</div>
+          <div class="rule-item" id="r-has_upper">    <span class="rule-check">✓</span>Uppercase Letter</div>
+          <div class="rule-item" id="r-has_lower">    <span class="rule-check">✓</span>Lowercase Letter</div>
+          <div class="rule-item" id="r-has_digit">    <span class="rule-check">✓</span>Number</div>
+          <div class="rule-item" id="r-has_special">  <span class="rule-check">✓</span>Special Character</div>
+          <div class="rule-item" id="r-no_spaces">    <span class="rule-check">✓</span>No Spaces</div>
+          <div class="rule-item" id="r-diversity">    <span class="rule-check">✓</span>Character Diversity</div>
+        </div>
+        <div class="rules-summary" id="rulesSummary">0 / 8 rules passed</div>
+      </div>
+
+    </div><!-- /bottom-row -->
+  </div><!-- /left-col -->
+
+  <!-- ── RIGHT COLUMN ── -->
+  <div class="right-col">
+
+    <!-- SCORE RING PANEL -->
+    <div class="panel score-ring-panel">
+      <div class="panel-label">Security Score</div>
+
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 120 120">
+          <circle class="ring-bg"   cx="60" cy="60" r="54"/>
+          <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="54"
+                  stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-score" id="ringScore">0</div>
+          <div class="ring-max">/ 100</div>
+        </div>
+      </div>
+
+      <div class="strength-badge" id="strengthBadge">NOT ANALYZED</div>
+
+      <!-- Quick rules -->
+      <div class="quick-rules-wrap">
+        <div class="panel-label" style="margin-bottom:10px;">Quick Checks</div>
+        <div id="quickRules">
+          <div class="rule-item" id="q-min_length">  <span class="rule-check">✓</span>Min 8 Characters</div>
+          <div class="rule-item" id="q-has_upper">   <span class="rule-check">✓</span>Uppercase Letter</div>
+          <div class="rule-item" id="q-has_lower">   <span class="rule-check">✓</span>Lowercase Letter</div>
+          <div class="rule-item" id="q-has_digit">   <span class="rule-check">✓</span>Number</div>
+          <div class="rule-item" id="q-has_special"> <span class="rule-check">✓</span>Special Character</div>
+          <div class="rule-item" id="q-no_spaces">   <span class="rule-check">✓</span>No Spaces</div>
+          <div class="rule-item" id="q-diversity">   <span class="rule-check">✓</span>Character Diversity</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECOMMENDATION PANEL -->
+    <div class="panel rec-panel">
+      <div class="rec-title">⬡ Recommendations</div>
+      <ul class="rec-list" id="recList">
+        <li>Enter a password to receive a security assessment.</li>
+      </ul>
+    </div>
+
+  </div><!-- /right-col -->
+
+</div><!-- /grid -->
+
+<!-- Generated password display -->
+<div class="generated-pw-wrap" id="generatedWrap" style="display:none;">
+  <div class="panel" style="max-width:960px;margin:0 auto;padding:16px 24px;">
+    <div class="panel-label">Generated Password</div>
+    <div class="generated-pw-row">
+      <code class="generated-pw-text" id="generatedText"></code>
+      <button class="btn-copy" id="btnCopy" type="button">⎘ Copy</button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
